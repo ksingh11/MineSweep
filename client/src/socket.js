@@ -16,28 +16,41 @@
         document.getElementById('client_id').innerHTML = socket.id;
 
         // register client's UID
-        socket.emit('register', {clientId: getClientUID()});
+        socket.emit('join_game', {playerId: getPlayerID()});
+    });
+
+    // on game joined
+    socket.on('game_joined', function (data) {
+        console.log('joined game:' + data);
+    });
+
+    // on game joined
+    socket.on('game_ready', function () {
+        console.log('game ready to play');
     })
 }());
 
 
 /**
  * get client id.
- * first check from browser's local storage, or generate new
+ * first check from browser's local storage, or generate new.
+ * Later: client id is supposed to get generated from database.
+ * @returns {string}
  */
-function getClientUID() {
+function getPlayerID() {
     var UNIQUE_ID_KEY = 'clientUniqueId';
 
     var clientUniqueId = localStorage.getItem(UNIQUE_ID_KEY);
-    if(clientUniqueId === false) {
+    if(clientUniqueId === null) {
         clientUniqueId = generateUniqueID();
         localStorage.setItem(UNIQUE_ID_KEY, clientUniqueId);
     }
+    return clientUniqueId
 }
 
 
 /**
- * Generate random script
+ * Generate random string
  * @returns {string}
  */
 function generateUniqueID() {

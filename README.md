@@ -1,4 +1,4 @@
-# Socket-Boilerplate
+# Minesweep
 ### Structure
 Project is basically about getting started with [socket.io](https://socket.io/) on node.js, and a few about structuring the code.
 

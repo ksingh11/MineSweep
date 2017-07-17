@@ -7,8 +7,10 @@
  * Individual player of game
  * @constructor
  */
-function Player() {
-    this.clientId = null;
+function Player(playerId, gameId, socketId) {
+    this.id = playerId;
+    this.gameId = gameId;
+    this.socketId = socketId;
 }
 
 
