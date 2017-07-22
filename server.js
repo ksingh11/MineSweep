@@ -57,10 +57,11 @@ app.use('/', require('./controllers/webapp'));
 
 
 /**
- * Plug socket.io app here
+ * Plug socket.io app here.
+ * Initialize with socket.io instance
  * pass 'io', socket.io initialized object
  */
-require('./controllers/socket').socketHandler(io);
+require('./controllers/socket').gameSocketHandler(io);
 
 
 /**

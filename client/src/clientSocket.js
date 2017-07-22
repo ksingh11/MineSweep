@@ -21,13 +21,35 @@
 
     // on game joined
     socket.on('game_joined', function (data) {
-        console.log('joined game:' + data);
+        console.log('joined game:' + JSON.stringify(data));
+    });
+
+    // on game joined
+    socket.on('game_reconnected', function (data) {
+        console.log('reconnected to game:' + JSON.stringify(data));
     });
 
     // on game joined
     socket.on('game_ready', function () {
         console.log('game ready to play');
-    })
+    });
+
+    socket.on('game_started', function (msg) {
+       console.log(msg);
+       alert(msg);
+    });
+
+    socket.on('player_added', function (msg) {
+        console.log('Player added: ' + JSON.stringify(msg));
+    });
+
+    socket.on('player_left', function (msg) {
+        console.log('Player left: ' + JSON.stringify(msg))
+    });
+
+    socket.on('game_close', function (msg) {
+        console.log('Closing Game.');
+    });
 }());
 
 
@@ -54,5 +76,5 @@ function getPlayerID() {
  * @returns {string}
  */
 function generateUniqueID() {
-    return Math.random().toString(36).substring(3,16) + new Date;
+    return Math.random().toString(36).substring(3,16) + new Date().getTime();
 }

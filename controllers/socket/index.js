@@ -1,9 +1,9 @@
-var socketController = require('./socketController');
+var gameSocketController = require('./gameSocketController');
 
 
 /**
  * module exports
  */
 module.exports = {
-    socketHandler: socketController.socketHandler
+    gameSocketHandler: gameSocketController.gameSocketHandler
 };

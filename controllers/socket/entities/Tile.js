@@ -8,13 +8,13 @@
  * @param id
  * @constructor
  */
-function GameTile(id) {
+function Tile(id) {
     this.id = id;
 }
 
 
 /**
- * export GameTile constructor
- * @type {GameTile}
+ * export Tile constructor
+ * @type {Tile}
  */
-module.exports = GameTile;
+module.exports = Tile;

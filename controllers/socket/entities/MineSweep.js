@@ -1,8 +1,7 @@
 var Player = require('./Player');
-var GameTile = require('./GameTile');
-var constants = require('libs/constants');
-var utils = require('libs/utilities');
+var Game = require('./Game');
 var logger = require('libs').getlogger;
+var constants = require('libs/constants');
 
 
 /**
@@ -15,100 +14,207 @@ var logger = require('libs').getlogger;
  * @constructor
  */
 function MineSweep() {
-    this.gameData = {};
-
-    // All games
-    this.gameData.games = {};
-    this.gameData.allPlayers = {};
+    this.allPlayers = {};
+    this.allGames = {};
 }
+
+
+/**
+ * return game object with game id
+ * @param gameID
+ * @returns {boolean}
+ */
+MineSweep.prototype.getGameById = function (gameID) {
+    if(gameID in this.allGames) {
+        return this.allGames[gameID];
+    } else {
+        logger.debug('Game not found for id: ' + gameID);
+        return false;
+    }
+};
 
 
 /**
  * Create new game
  * @param numPlayers
  */
-MineSweep.prototype.createGame = function (numPlayers) {
-    // number of players for the game
-    numPlayers = numPlayers || constants.NUM_PLAYERS;
+MineSweep.prototype.createNewGame = function (numPlayers) {
+    var newGame = new Game(numPlayers);
 
-    var game = {};
-    game.id = utils.generateUniqueID();
-    game.playerLimit = numPlayers;
-    game.players = [];
-    game.tiles = [];
-
-    // assign tiles to game, also assign a id to tiles
-    var numTiles = constants.NUM_TILES;
-
-    for (var id=1; id<=numTiles; id++) {
-        game.tiles.push(new GameTile(id));
-    }
-
-    // store game in game list
-    this.gameData.games[game.id] = game;
+    // add game to global game list
+    this.allGames[newGame.id] = newGame;
 
     // return game object
-    return game;
+    return newGame;
 };
 
 
 /**
  * find open games of create new game and join
  * also validate if player has already joined some other game
+ * @param socket: current client's (user's) socket
  * @param playerId
- * @param socketId
  */
-MineSweep.prototype.joinGame = function (playerId, socketId) {
-    var gameId = null;
-    var gameFound = null;
+MineSweep.prototype.joinGame = function (socket, playerId) {
+    var openGame = null;
 
-    // check if player is already in some game, return the same game object
-    if (playerId in this.gameData.allPlayers) {
-        gameId = this.gameData.allPlayers[playerId].gameId;
-
-        logger.debug('player ' + playerId + ' Already in game ' + gameId);
-        return this.gameData.games[gameId]
+    // check if player is already in some game, return false
+    if (playerId in this.allPlayers) {
+        return false;
     }
 
-
     // try to find open games, where players are short
-    for(var game in this.gameData.games) {
-        if(game.players.length < game.playerLimit) {
-            gameFound = game;
+    for(var gameKey in this.allGames) {
 
-            logger.debug('player ' + playerId + ' Found an open game ' + gameFound.id);
+        if (this.allGames.hasOwnProperty(gameKey)) {
+            var game = this.allGames[gameKey];
+
+            if (game.isAvailableToJoin()) {
+                openGame = game;
+                logger.debug('player ' + playerId + ' Found an open game ' + game.id);
+                break;
+            }
         }
     }
 
-
     // if no game found, create a new game
-    if (gameFound === null) {
-        gameFound = this.createGame();
+    if (openGame === null) {
+        openGame = this.createNewGame();
 
-        logger.debug('player ' + playerId + ' created new game ' + gameFound.id);
+        logger.debug('player ' + playerId + ' created new game ' + openGame.id);
     }
 
-
-    // At this point we have a game, either from open games or a fresh game
+    // At this point we have a game, either from open games or a newly created game
     // Now join player to the game
-    var newPlayer = new Player(playerId, gameFound.id, socketId);
-    gameFound.players.push(newPlayer);
-
+    var newPlayer = new Player(playerId, openGame.id);
+    openGame.addGamePlayer(socket, newPlayer);
 
     // add this player to all players list
-    this.gameData.allPlayers[playerId] = newPlayer;
-    logger.debug('Total players in game are: ' + Object.keys(this.gameData.allPlayers).length);
+    this.allPlayers[playerId] = newPlayer;
+    logger.debug('Total players in game are: ' + Object.keys(this.allPlayers).length);
 
-    return gameFound;
+    return openGame;
 };
 
 
 /**
- * check if game is ready to play,
- * ie. all players have joined
+ * Attempt to reconnect player,
+ * validate game join request but has already joined in some game.
+ * Also, if player is getting reconnected once check if disconnect lock is set,
+ * otherwise he might get disconnected anytime if scheduled from some earlier routine
+ * @param socket
+ * @param playerId
+ * @returns {boolean|Game}
  */
-MineSweep.prototype.isGameReady = function (game) {
-    return game.players.length === game.playerLimit;
+MineSweep.prototype.attemptReconnect = function (socket, playerId) {
+    var gameId = null;
+
+    // check if player is already in some game, return the same game object
+    if (playerId in this.allPlayers) {
+        gameId = this.allPlayers[playerId].gameId;
+
+        // fetch old game and return
+        logger.debug('player ' + playerId + ' Already in game: ' + gameId + ' Reconnecting...');
+        var oldGame = this.getGameById(gameId);
+
+        // join into the game room
+        if (oldGame && oldGame.joinRoom(socket)) {
+
+            // set player's disconnect lock
+            this.allPlayers[playerId].setDisconnectLock();
+            logger.debug('Setting disconnectLock for player: ' + playerId);
+
+            // return game object
+            return oldGame;
+        }
+    }
+
+    // game not found
+    return false;
+};
+
+
+/**
+ * remove player from game
+ * - remove from global player list
+ * - remove from game and update game state accordingly
+ * - check if game has less than minimum required player, delete the game object
+ * @param io
+ * @param socket
+ * @param playerId
+ */
+MineSweep.prototype.removePlayer = function(io, socket, playerId) {
+    logger.debug('Removing player player: ' + playerId);
+    var gameId = this.allPlayers[playerId].getGameId();
+    delete this.allPlayers[playerId];
+
+    this.allGames[gameId].removeGamePlayer(io, socket, playerId);
+
+    // check number of players
+    if (this.allGames[gameId].getPlayerCount() < constants.MIN_PLAYERS_TO_START) {
+        this.abandonGame(io, socket, gameId);
+    }
+};
+
+
+/**
+ * Close game prematurely:
+ * - delete game object
+ * - delete players
+ * @param io
+ * @param socket
+ * @param gameId
+ */
+MineSweep.prototype.abandonGame = function (io, socket, gameId) {
+    var game = this.allGames[gameId];
+
+    // delete game from global list
+    delete this.allGames[gameId];
+
+    // remove players from global players list
+    var players = game.getPlayers();
+    for (var playerId in players) {
+        if (players.hasOwnProperty(playerId)) {
+            delete this.allPlayers[playerId];
+        }
+    }
+
+    // destroy game data
+    game.destroy(io);
+};
+
+
+/**
+ * on disconnected socket, set player's disconnectLock flag.
+ * this flag is checked before final disconnection
+ */
+MineSweep.prototype.markPlayerDisconnected = function (playerId) {
+    if (playerId in this.allPlayers) {
+        this.allPlayers[playerId].releaseDisconnectLock();
+        logger.debug('Releasing disconnectLock for player: ' + playerId);
+    }
+};
+
+
+/**
+ * disconnect player.
+ * First check if disconnect lock is not set on player
+ * @param io
+ * @param socket
+ * @param playerId
+ */
+MineSweep.prototype.disconnectPlayer = function (io, socket, playerId) {
+    if(playerId in this.allPlayers) {
+        // check if player is locked, first release the lock
+        if(this.allPlayers[playerId].isDisconnectLocked()) {
+            logger.debug('unable to remove player, disconnect lock set. Release the lock to disconnect');
+            return false;
+        }
+        else {
+            // remove player
+            this.removePlayer(io, socket, playerId);
+        }
+    }
 };
 
 

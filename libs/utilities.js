@@ -16,5 +16,5 @@ module.exports = {
  * @returns {string}
  */
 function generateUniqueID() {
-    return Math.random().toString(36).substring(3,16) + new Date;
+    return Math.random().toString(36).substring(3,16) + new Date().getTime();
 }

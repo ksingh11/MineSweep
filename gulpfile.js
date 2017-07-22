@@ -54,7 +54,7 @@ gulp.task('sass:watch', function () {
 gulp.task('script', function () {
     var jsFiles = [
         jsSource + '/main.js',
-        jsSource + '/socket.js'
+        jsSource + '/clientSocket.js'
 
     ];
 
