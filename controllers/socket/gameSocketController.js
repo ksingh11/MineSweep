@@ -63,17 +63,6 @@ function gameSocketHandler(io) {
 
 
         /**
-         * Game actions: events triggers while playing game
-         * MineSweep.gameActions(io, socket, action, data);
-         */
-
-        // place bomb event
-        socket.on('plant_bomb', function (data) {
-           MineSweep.gameActions(io, socket, 'plant_bomb', data);
-        });
-
-
-        /**
          * On client disconnect.
          * Do not remove player from game immediately,
          * - as might be browser refresh or some connection issue
