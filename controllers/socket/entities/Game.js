@@ -172,7 +172,7 @@ Game.prototype.joinRoom = function (socket) {
 Game.prototype.startGame = function(io, socket) {
     if(!this.gameStarted) {
         this.gameStarted = true;
-        io.to(this.roomId).emit('game_started', 'Winter is finally here. look for Dragon glass, save the north!');
+        io.to(this.roomId).emit('game_started', 'Winter is finally here. Form alliances, save the north!');
 
         logger.debug('game started, id: ' + this.id);
     }

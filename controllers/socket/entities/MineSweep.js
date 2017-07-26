@@ -2,6 +2,7 @@ var Player = require('./Player');
 var Game = require('./Game');
 var logger = require('libs').getlogger;
 var constants = require('libs/constants');
+var GameActions = require('./GameActions');
 
 
 /**
@@ -31,6 +32,23 @@ MineSweep.prototype.getGameById = function (gameID) {
         logger.debug('Game not found for id: ' + gameID);
         return false;
     }
+};
+
+
+/**
+ * return game associated with requested player's id
+ * @param playerId
+ * @return {Boolean|Game}
+ */
+MineSweep.prototype.getGameByPlayerId = function (playerId) {
+    if (playerId in this.allPlayers) {
+        var gameId = this.allPlayers[playerId].gameId;
+        if (this.allGames.hasOwnProperty(gameId)) {
+            return this.allGames[gameId];
+        }
+    }
+
+    return false;
 };
 
 
@@ -214,6 +232,34 @@ MineSweep.prototype.disconnectPlayer = function (io, socket, playerId) {
             // remove player
             this.removePlayer(io, socket, playerId);
         }
+    }
+};
+
+
+/**
+ * Handles game actions, action taken while playing game.
+ * - Also, check if game has started, other defer the action
+ * @param io: global socket.io handle
+ * @param socket: client's socket object
+ * @param action: socket io event, triggered from client
+ * @param data: data sent with the event/action
+ */
+MineSweep.prototype.gameActions = function (io, socket, action, data) {
+    // check if game has started
+    var validateGameStarted = constants.VALIDATE_GAME_STARTED_BEFORE_ACTION;
+    if(validateGameStarted && !this.getGameByPlayerId(socket.playerId).isGameStarted()) {
+        logger.debug('Game hasn\'t started yet!');
+        socket.emit('message', 'Game hasn\'t started yet!');
+        return false;
+    }
+
+    // call associated game action
+    if(GameActions.hasOwnProperty(action)) {
+        GameActions[action](io, socket, this, action, data);
+    }
+    else {
+        logger.debug('Undefined game action called: ' + action);
+        socket.emit('message', 'Undefined game action called: ' + action);
     }
 };
 

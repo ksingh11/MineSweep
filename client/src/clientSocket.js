@@ -50,6 +50,16 @@
     socket.on('game_close', function (msg) {
         console.log('Closing Game.');
     });
+
+    // generic 'message' event:
+    socket.on('message', function (message) {
+        console.log(message);
+    });
+
+    // Emit events
+    document.addEventListener('click', function(){
+        socket.emit('plant_bomb', {message: 'hello'});
+    });
 }());
 
 
