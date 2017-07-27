@@ -7,11 +7,13 @@
  * Individual player of game
  * @param playerId: player unique id
  * @param gameId: player's current game id
+ * @param socketId: player's client socket id
  * @constructor
  */
-function Player(playerId, gameId) {
+function Player(playerId, gameId, socketId) {
     this.id = playerId;
     this.gameId = gameId;
+    this.socketId = socketId;
 
     // prevent player from getting removed/disconnected from game if set true.
     this.disconnectLock = true;
@@ -65,7 +67,7 @@ Player.prototype.releaseDisconnectLock = function () {
  * @returns {boolean}
  */
 Player.prototype.isDisconnectLocked = function () {
-  return this.disconnectLock;
+    return this.disconnectLock;
 };
 
 
