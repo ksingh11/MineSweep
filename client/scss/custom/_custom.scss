@@ -1,10 +1,332 @@
+
+@import "mixins";
+$primary-font: 'Roboto Slab', serif;
+
 html, body {
   margin: 0;
   padding: 0;
 }
 
-.logo {
-    padding-left: 100px;
-    background: #fff url("../assets/images/batman-logo.png") no-repeat left;
-    background-size: 70px;
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.5);
+}
+
+*
+{
+    font-family: $primary-font;
+}
+
+body
+{
+    position: relative;
+    margin: 0;
+}
+
+.login
+{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,.925);
+    z-index: 10000;
+
+    .container
+    {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+
+        .login-text
+        {
+            font-family: $primary-font;
+            color: #FFF;
+            font-size: 1.4em;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        input.username
+        {
+            width: 250px;
+            border: none;
+            outline: none;
+            background: none;
+            font-size: 1.6em;
+            color: #FFF;
+            padding: 20px;
+            border-bottom: 1px solid #FFF;
+            text-align: center;
+        }
+    }
+}
+
+.arena
+{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: -webkit-linear-gradient(135deg, #f6416c, #fff6b8);
+}
+
+.tile-wrapper
+{
+    width: 700px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    .tile
+    {
+        position: relative;
+        top: 0px;
+        height: 40px;
+        width: 40px;
+        transform-origin: 50% 50%;
+        transform: rotate(45deg);
+        border-radius: 11px;
+        box-shadow: 0 0 0 0 rgba(0,0,0,0.50);
+        background: #FFF;
+        margin: -1.25px 5px;
+        @include transition(.2s);
+    }
+
+    .shift-right
+    {
+        position: relative;
+        left: 30px;
+    }
+
+    .shift-left
+    {
+        position: relative;
+        left: -30px;
+    }
+
+    .tile:hover
+    {
+        cursor: pointer;
+        top: -5px;
+        box-shadow: 5px 5px 0px 0px rgba(0,0,0,.1);
+        //background: #fff4df;
+    }
+
+    .tile:active
+    {
+        top: 0px;
+        box-shadow: none;
+        background: #EEE;
+    }
+}
+
+.header
+{
+    position: relative;
+    top: 15%;
+    left: 50%;
+    width: 700px;
+    transform: translate(-50%,-50%);
+    height: 80px;
+}
+
+.timer
+{
+    width: 80px;
+    height: 80px;
+    background: #FFF;
+    border-radius: 100%;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%,0%);
+    box-shadow: 0px 2px 2px rgba(0,0,0,.2);
+
+    .time
+    {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        font-family: $primary-font;
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #fe0000;
+    }
+}
+
+.inventory
+{
+    position: absolute;
+    left: 0;
+    width: 40%;
+    height: 100%;
+
+    .element-wrapper
+    {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
+
+    .element
+    {
+        width: 75px;
+        margin: 0px 5px;
+        display: inline-block;
+
+        .circle
+        {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            background: #FFF;
+            display: inline-block;
+
+            .amount
+            {
+                font-family: $primary-font;
+                color: #000;
+                font-size: 1.1em;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                font-weight: 700;
+                transform: translate(-50%,-50%);
+            }
+        }
+
+        .circle:nth-child(2)
+        {
+            margin-left: -10px;
+        }
+
+        .element-time
+        {
+            width: 70px;
+            text-align: center;
+            font-family: $primary-font;
+            font-size: 1em;
+            font-weight: 700;
+            color: rgba(0,0,0,.4);
+            position: absolute;
+            top: -30px;
+        }
+    }
+
+}
+
+.score
+{
+    position: absolute;
+    right: 0;
+    width: 40%;
+    height: 100%;
+
+    .score-wrapper
+    {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
+
+    .base
+    {
+        position: relative;
+        height: 50px;
+        width: 50px;
+        transform-origin: 50% 50%;
+        transform: rotate(45deg);
+        border-radius: 11px;
+        box-shadow: 0 0 0 0 rgba(0,0,0,0.50);
+        background: #FFF;
+        display: inline-block;
+        box-shadow: 0px 2px 2px rgba(0,0,0,.2);
+
+        .position
+        {
+            font-family: $primary-font;
+            color: #000;
+            font-size: 1.1em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-weight: 700;
+            transform: translate(-50%,-50%) rotate(-45deg);
+        }
+    }
+
+    .base:nth-child(1)
+    {
+        margin-right: 30px;
+    }
+}
+
+.players-wrapper
+{
+    width: 900px;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: calc(100% - 275px);
+
+    .player
+    {
+        width: 200px;
+        height: 125px;
+        background: #FFF;
+        margin: 10px;
+
+        .player-avatar-back
+        {
+            width: 100%;
+            background: #222;
+            height: 80%;
+
+            .name
+            {
+                width: 85%;
+                margin: auto;
+                padding-top: 15px;
+                padding-bottom: 15px;
+                text-align: right;
+                color: #FFF;
+                font-family: $primary-font;
+                font-size: .9em;
+            }
+
+            .points
+            {
+                width: 85%;
+                margin: auto;
+                text-align: right;
+                color: #FFF;
+                font-family: $primary-font;
+                font-weight: 400;
+                font-size: 1.5em;
+            }
+
+            .points:after
+            {
+                content: ' PTS';
+            }
+        }
+    }
 }

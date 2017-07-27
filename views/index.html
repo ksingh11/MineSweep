@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-    <title>Game lobby</title>
+    <title>Mine and Sweep: Alpha version</title>
+    <meta name="viewport" content="width=device-width, initial-scale = 1, user-scalable = no">
 
     <!-- include style resources -->
     <link href="css/style.min.css" type="text/css" rel="stylesheet">
@@ -9,23 +10,76 @@
 </head>
 
 <body>
-    <!--Header block-->
-    <div class="header">
-        <div class="logo">
-            <h1 class="title" id="title">Brewing Awesomeness!</h1>
-        </div>
 
-    </div>
-
-    <!--Container block-->
-    <div class="container">
-        <div class="content">
-            <p>client id: <span id="client_id">awaiting...</span></p>
+    <!-- Login overlay -->
+    <div class="login">
+        <div class="container">
+            <div class="login-text">What's your nickname?</div>
+            <input type="text" id="username" class="username"/>
         </div>
     </div>
 
-    <!--Footer-->
-    <div class="footer"></div>
+    <!-- Game container -->
+    <div class="arena">
+        <div class="header">
+            <div class="inventory">
+                <div class="element-wrapper">
+
+                    <div class="element">
+                        <div class="circle"></div>
+                        <div class="circle">
+                            <div class="amount">5</div>
+                        </div>
+                        <div class="element-time">00 : 11</div>
+                    </div>
+
+                    <div class="element">
+                        <div class="circle"></div><div class="circle"><div class="amount">0</div></div>
+                        <div class="element-time">00 : 12</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timer"><div class="time"></div></div>
+
+            <div class="score">
+                <div class="score-wrapper">
+                    <div class="base"></div>
+                    <div class="base"><div class="position">2nd</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="tile-wrapper"></div>
+
+        <div class="players-wrapper">
+            <div class="player" id ="player1">
+                <div class="player-avatar-back">
+                    <div class="name">Player Name</div>
+                    <div class="points">93</div>
+                </div>
+            </div>
+
+            <div class="player" id ="player2">
+                <div class="player-avatar-back" >
+                    <div class="name">Player Name</div>
+                    <div class="points">93</div>
+                </div>
+            </div>
+            <div class="player" id ="player3">
+                <div class="player-avatar-back">
+                    <div class="name">Player Name</div>
+                    <div class="points">93</div>
+                </div>
+            </div>
+            <div class="player" id ="player4">
+                <div class="player-avatar-back">
+                    <div class="name">Player Name</div>
+                    <div class="points">93</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 <!--load external resources-->
@@ -38,8 +92,5 @@
 
 <!--Custom Scripts -->
 <script type="application/javascript">
-    window.onload = function() {
-        console.log('Everything is loaded!');
-    }
 </script>
 </html>

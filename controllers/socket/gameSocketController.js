@@ -58,7 +58,21 @@ function gameSocketHandler(io) {
         // Leave game request
         socket.on('leave_game', function () {
             var playerId = socket.playerId;
-            MineSweep.removePlayer(io, socket, playerId);
+            if (playerId) {
+                MineSweep.removePlayer(io, socket, playerId);
+            }
+        });
+
+
+        /**
+         * Game actions: events triggers while playing game
+         * MineSweep.gameActions(io, socket, action, data);
+         */
+        // place bomb event
+        socket.on('plant_bomb', function (data) {
+            if(socket.playerId){
+                MineSweep.gameActions(io, socket, 'plant_bomb', data);
+            }
         });
 
 
@@ -70,15 +84,21 @@ function gameSocketHandler(io) {
          * - also, mark player removable by releasing the disconnect lock
          */
         socket.on('disconnect', function () {
-            logger.debug('socket disconnected, scheduling player to disconnect, socketId: ' + socket.id);
-
             var playerId = socket.playerId;
-            var disconnectTimeout = constants.PLAYER_DISCONNECT_TIMEOUT || 2000;
 
-            MineSweep.markPlayerDisconnected(playerId);
-            setTimeout(function(){
-                MineSweep.disconnectPlayer(io, socket, playerId);
-            }, disconnectTimeout)
+            if(playerId) {
+                logger.debug('socket disconnected, scheduling player to disconnect, socketId: ' + socket.id);
+
+                var disconnectTimeout = constants.PLAYER_DISCONNECT_TIMEOUT || 2000;
+
+                MineSweep.markPlayerDisconnected(playerId);
+                setTimeout(function(){
+                    MineSweep.disconnectPlayer(io, socket, playerId);
+                }, disconnectTimeout)
+            }
+            else {
+                logger.debug('socket disconnected');
+            }
         })
     });
 }
