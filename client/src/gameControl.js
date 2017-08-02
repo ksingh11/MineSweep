@@ -48,21 +48,20 @@
 
     // game weapons
     Game.weapons = {
-        order: ['bomb', 'spade'],   // order of weapon to select
+        list: [Bomb, Spade],   // list of weapon to select
         selected: null, // index of selected weapon, from order
-        bomb: Bomb,
-        spade: Spade,
+
         nextWeapon: function () {
-            this.selected = (this.selected + 1) % this.order.length;
-            console.log('selected: ' + this.order[this.selected]);
+            this.selected = (this.selected + 1) % this.list.length;
+            console.log('selected: ' + this.list[this.selected].name);
         },
         selectByName: function (name) {
-            var index = this.order.indexOf(name);
-            // update selected weapon if valid selection
-            if (index >= 0) {
-                this.selected = index;
-            }
-            console.log('selected: ' + this.order[this.selected]);
+            this.list.forEach(function (index, weapon) {
+                if (weapon.name === name) {
+                    this.selected = index;
+                }
+            });
+            console.log('selected: ' + this.list[this.selected].name);
         }
     };
 
@@ -147,5 +146,13 @@ function keyBoardEventHandler(ev) {
  */
 function tileClickHandler(tileElem) {
     var tileId = tileElem.target.id;
+    var weapon = Game.weapons.list[Game.weapons.selected];
+
+    if (weapon.count < 1) {
+        console.log('Exhausted: ' + weapon);
+        return;
+    }
+
+    Client.useWeapon(weapon.name, tileId);
 
 }

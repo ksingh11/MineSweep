@@ -72,8 +72,9 @@ MineSweep.prototype.createNewGame = function (numPlayers) {
  * also validate if player has already joined some other game
  * @param socket: current client's (user's) socket
  * @param playerId
+ * @param onGameJoinedCB: Call back function
  */
-MineSweep.prototype.joinGame = function (socket, playerId) {
+MineSweep.prototype.joinGame = function (socket, playerId, onGameJoinedCB) {
     var openGame = null;
 
     // check if player is already in some game, return false
@@ -104,14 +105,28 @@ MineSweep.prototype.joinGame = function (socket, playerId) {
 
     // At this point we have a game, either from open games or a newly created game
     // Now join player to the game
-    var newPlayer = new Player(playerId, openGame.id);
+    var newPlayer = new Player(playerId, openGame.id, socket.id);
     openGame.addGamePlayer(socket, newPlayer);
 
     // add this player to all players list
     this.allPlayers[playerId] = newPlayer;
     logger.debug('Total players in game are: ' + Object.keys(this.allPlayers).length);
 
-    return openGame;
+    // call callback function, with parameters: open game and, game data, player data
+    var gameData = {
+        id: openGame.id,
+        player: newPlayer.getState()
+    };
+    var playerData = newPlayer.getState();
+    onGameJoinedCB(null, gameData, playerData);
+
+    // check if game is ready to be played
+    if(openGame.isReadyToPlay()) {
+        socket.emit('game_ready');
+
+        logger.debug('Game ready to play. game id:' + openGame.id);
+        openGame.startGame(io, socket);
+    }
 };
 
 
@@ -246,8 +261,7 @@ MineSweep.prototype.disconnectPlayer = function (io, socket, playerId) {
  */
 MineSweep.prototype.gameActions = function (io, socket, action, data) {
     // check if game has started
-    var validateGameStarted = constants.VALIDATE_GAME_STARTED_BEFORE_ACTION;
-    if(validateGameStarted && !this.getGameByPlayerId(socket.playerId).isGameStarted()) {
+    if(!this.getGameByPlayerId(socket.playerId).isGameStarted()) {
         logger.debug('Game hasn\'t started yet!');
         socket.emit('message', 'Game hasn\'t started yet!');
         return false;

@@ -18,7 +18,7 @@
  * mapping of socket io events with action
  */
 var GameActions = {
-    plant_bomb: plantBomb
+    weapon_used: weaponUsed
 };
 
 
@@ -35,7 +35,7 @@ module.exports = GameActions;
 /**
  * Place bomb
  */
-function plantBomb(io, socket, MineSweep, action, data) {
+function weaponUsed(io, socket, MineSweep, action, data) {
     console.log('Action: ' + action + JSON.stringify(data));
 }
 

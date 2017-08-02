@@ -42,16 +42,9 @@ function gameSocketHandler(io) {
 
             // player has not already joined
             // find a game for player, and notify him
-            var openGame = MineSweep.joinGame(socket, playerId);
-            socket.emit('game_joined', {gameId: openGame.id});
-
-            // check if game is ready to be played
-            if(openGame.isReadyToPlay()) {
-                socket.emit('game_ready');
-
-                logger.debug('Game ready to play. game id:' + openGame.id);
-                openGame.startGame(io, socket);
-            }
+            MineSweep.joinGame(socket, playerId, function (err, data) {
+                socket.emit('game_joined', {data: data});
+            });
         });
 
 
@@ -69,9 +62,9 @@ function gameSocketHandler(io) {
          * MineSweep.gameActions(io, socket, action, data);
          */
         // place bomb event
-        socket.on('plant_bomb', function (data) {
+        socket.on('weapon_used', function (data) {
             if(socket.playerId){
-                MineSweep.gameActions(io, socket, 'plant_bomb', data);
+                MineSweep.gameActions(io, socket, 'weapon_used', data);
             }
         });
 

@@ -223,6 +223,13 @@ Game.prototype.destroy = function (io) {
 };
 
 
+/**
+ * Return game's current state
+ */
+Game.prototype.getState = function () {
+
+};
+
 /********************************************
 /*********** Utility functions **************/
 

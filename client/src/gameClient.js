@@ -22,17 +22,17 @@
     Client.joinGame = function (username) {
         // register client's UID
         Client.socket.emit('join_game', {playerId: username});
-
-        // initialize game
-        Game.init();
     };
 
     /*********************************************************
      ************* Game Boot events **************************/
 
-    // on game joined
+    // on game joined, initialize game
     Client.socket.on('game_joined', function (data) {
         console.log('joined game:' + JSON.stringify(data));
+
+        // initialize game
+        Game.init();
     });
 
     // on game joined
@@ -83,6 +83,15 @@
     // game state
     Client.socket.on('state_update', function (data) {
         Game.updateState(data);
-    })
+    });
+
+
+    Client.useWeapon = function (weaponName, tileId) {
+        var data = {
+            tile: tileId,
+            weapon: weaponName
+        };
+        Game.socket.emit('weapon_used', data)
+    }
 
 }());
